@@ -1,4 +1,8 @@
 {
+    "title": {
+        "text": "Ledgers",
+        "htmlId": "htmlId"
+    },
     "items": [
         {
             "text": "ShowAll",

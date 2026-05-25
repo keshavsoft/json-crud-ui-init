@@ -1,10 +1,10 @@
-import { locateSource } from "./initHtml/steps/locateSource.js";
+import { locateSource } from "./initFromCdn/steps/locateSource.js";
 
-import { createProject } from "./initHtml/steps/createProject.js";
-import { announce } from "./initHtml/steps/announce.js";
+import { createProject } from "./initFromCdn/steps/createProject.js";
+import { announce } from "./initFromCdn/steps/announce.js";
 
-import resolveFolderName from "./initHtml/steps/resolveFolderName.js";
-import checks from "./initHtml/steps/checks.js";
+import resolveFolderName from "./initFromCdn/steps/resolveFolderName.js";
+import checks from "./initFromCdn/steps/checks.js";
 
 export default ({ folderName = "", toPath = process.cwd(), inAnnounce = true }) => {
     const fromChecks = checks({ toPath, inAnnounce });
