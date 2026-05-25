@@ -1,6 +1,6 @@
 {
   "name": "json-crud-ui-init",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "ui boilerplate code in public folder, with html and js",
   "keywords": [
     "cli",
@@ -16,7 +16,7 @@
     ".": "./index.js"
   },
   "bin": {
-    "json-crud-ui-components": "./bin/cli.js"
+    "json-crud-ui-init": "./bin/cli.js"
   },
   "files": [
     "bin/",
