@@ -1,15 +1,18 @@
-import path from "path";
 import fs from "fs";
+import path from "path";
 
-const validate = ({ toPath }) => {
-    if (fs.existsSync(toPath)) {
+const validate = ({ toPath, inFolderName }) => {
+    const fullPath = path.join(toPath, inFolderName);
 
-        const files = fs.readdirSync(toPath);
+    if (!fs.existsSync(fullPath)) {
+        return false;
+    };
 
-        if (files.length > 0) {
-            console.log("index folder should be empty");
-            return true;
-        };
+    const files = fs.readdirSync(fullPath);
+
+    if (files.length > 0) {
+        console.log("Folder should be empty");
+        return true;
     };
 
     return false;
