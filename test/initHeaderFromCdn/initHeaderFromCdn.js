@@ -1,6 +1,6 @@
 import getLatestVersion from "../../bin/core/getLatestVersion.js";
 
-const commandToSend = "initFromCdn";
+const commandToSend = "initHeaderFromCdn";
 
 const load = async () => {
     const v = getLatestVersion();
