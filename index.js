@@ -1,5 +1,12 @@
 import getLatestVersion from "./bin/core/getLatestVersion.js";
 
-const v = getLatestVersion();
+const load = async (cmd) => {
+    const v = getLatestVersion();
 
-export default (await import(`./bin/${v}/tasks/actions/EndPointsJs/index.js`)).default;
+    return (await import(
+        `./bin/${v}/commands/${cmd}.js`
+    )).default;
+};
+
+export const initHeaderFromCdn = async (...a) =>
+    (await load("initHeaderFromCdn"))(...a);
