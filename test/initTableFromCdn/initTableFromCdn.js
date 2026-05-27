@@ -1,23 +1,14 @@
-import getLatestVersion from "../../bin/core/getLatestVersion.js";
+import { load } from "../../index.js";
 
 const commandToSend = "initHeaderFromCdn";
 
-const load = async () => {
-    const v = getLatestVersion();
+const startFunc = async (...a) =>
+    (await load(commandToSend))(...a);
 
-    return import(`../../bin/${v}/commands/${commandToSend}.js`);
-};
+const folderName = process.argv[2];
+const showLog = process.argv[3];
 
-const startFunc = async () => {
-    const { default: run } = await load();
-
-    const folderName = process.argv[2];
-    const showLog = process.argv[3];
-
-    run({
-        folderName,
-        showLog
-    });
-};
-
-startFunc().then();
+startFunc({
+    folderName,
+    showLog
+}).then();
