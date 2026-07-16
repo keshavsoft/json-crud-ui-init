@@ -1,4 +1,7 @@
+import { createRequire } from "module";
 import getLatestVersion from "./bin/core/getLatestVersion.js";
+
+const require = createRequire(import.meta.url);
 
 const load = async (cmd) => {
     const v = getLatestVersion();
@@ -11,5 +14,14 @@ const load = async (cmd) => {
 const initHeaderFromCdn = async (...a) =>
     (await load("initHeaderFromCdn"))(...a);
 
+let fromScriptJs = {};
 
-export { load, initHeaderFromCdn };
+fromScriptJs.simple = (options) => {
+    const v = getLatestVersion();
+
+    const mod = require(`./bin/${v}/fromScriptJs/simple.js`);
+
+    return mod.default(options);
+};
+
+export { load, initHeaderFromCdn, fromScriptJs };
