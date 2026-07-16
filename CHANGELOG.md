@@ -43,3 +43,8 @@ The format is based on Keep a Changelog.
 
 ### Added
 - test init good
+
+## [1.7.3] - 2026-07-16
+
+### Added
+- crud added

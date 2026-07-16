@@ -24,4 +24,12 @@ fromScriptJs.simple = (options) => {
     return mod.default(options);
 };
 
+fromScriptJs.crud = (options) => {
+    const v = getLatestVersion();
+
+    const mod = require(`./bin/${v}/fromScriptJs/crud.js`);
+
+    return mod.default(options);
+};
+
 export { load, initHeaderFromCdn, fromScriptJs };
