@@ -38,5 +38,5 @@ jobs:
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GH_PAT }}
-          repository: keshavsoft/vs-code-ext-json-crud-ui-init
+          repository: keshavsoft/vs-code-ext-from-any-js
           event-type: kschema_published
