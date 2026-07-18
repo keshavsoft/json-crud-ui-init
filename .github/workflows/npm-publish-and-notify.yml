@@ -40,3 +40,8 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           repository: keshavsoft/vs-code-ext-from-any-js
           event-type: kschema_published
+
+      - name: Update Action Summary
+        run: |
+          echo "### Notification Status" >> $GITHUB_STEP_SUMMARY
+          echo "Notified repository: **keshavsoft/vs-code-ext-from-any-js**" >> $GITHUB_STEP_SUMMARY

@@ -1,6 +1,6 @@
 {
   "name": "json-crud-ui-init",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "ui boilerplate code in public folder, with html and js",
   "keywords": [
     "cli",
@@ -9,8 +9,7 @@
     "node",
     "project-generator"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "type": "module",
   "exports": {
     ".": "./index.js"
