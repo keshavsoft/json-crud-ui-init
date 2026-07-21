@@ -1,10 +1,10 @@
-name: Publish and Intimate VS Code
+name: step 1 and notify to above
 
 on:
   workflow_dispatch:
 
 jobs:
-  publish:
+  publish-and-notify:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,20 +20,30 @@ jobs:
         run: npm install
 
       - name: Publish to npm
+        id: publish_step
         run: |
           CURRENT_VERSION=$(jq -r .version package.json)
           if npm view json-crud-ui-init@$CURRENT_VERSION version >/dev/null 2>&1; then
             echo "Version $CURRENT_VERSION is already published on npm. Skipping publication."
+            echo "status=skipped" >> $GITHUB_OUTPUT
+            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           else
             npm publish
+            echo "status=published" >> $GITHUB_OUTPUT
+            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  notify:
-    needs: publish
-    runs-on: ubuntu-latest
-    steps:
+      - name: Update Action Summary
+        run: |
+          echo "### Publication Status" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.publish_step.outputs.status }}" = "published" ]; then
+            echo "Successfully published version: **${{ steps.publish_step.outputs.version }}**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Version **${{ steps.publish_step.outputs.version }}** is already published on npm. Skipping publication." >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Send Repository Dispatch
         uses: peter-evans/repository-dispatch@v3
         with:
@@ -41,7 +51,7 @@ jobs:
           repository: keshavsoft/vs-code-ext-from-any-js
           event-type: kschema_published
 
-      - name: Update Action Summary
+      - name: Update Notification Summary
         run: |
           echo "### Notification Status" >> $GITHUB_STEP_SUMMARY
           echo "Notified repository: **keshavsoft/vs-code-ext-from-any-js**" >> $GITHUB_STEP_SUMMARY
