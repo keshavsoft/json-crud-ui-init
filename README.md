@@ -1,225 +1,60 @@
-````md
-# KSchema API Check
+# json-crud-ui-init
 
-A lightweight CLI utility to validate and inspect `end-points.js` files inside KSchema-based projects.
+[![npm version](https://img.shields.io/npm/v/json-crud-ui-init.svg)](https://www.npmjs.com/package/json-crud-ui-init)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Built for fast development workflows, clean architecture, and reusable tooling.
+A lightweight CLI and library to scaffold static UI boilerplate code (HTML, JS, and CDN templates) directly inside the `public` folder of your project.
 
 ---
 
 ## Installation
 
-### Run directly with npx
-
+Run directly using `npx`:
 ```bash
-npx kschema-api-check
-````
+npx json-crud-ui-init <command> [options]
+```
 
-### Global install
-
+Or install globally:
 ```bash
-npm i -g kschema-api-check
+npm install -g json-crud-ui-init
 ```
 
 ---
-
-## Purpose
-
-This package helps developers:
-
-* Validate `end-points.js`
-* Inspect API route structure
-* Automate repetitive checks
-* Build scalable CLI workflows
-* Extend command-based tooling cleanly
-
----
-
-# Features
-
-* Clean command architecture
-* Action-based execution
-* Modular structure
-* Easy to extend
-* Lightweight
-* ES Modules support
-* Zero framework dependency
-
----
-
-# Commands
-
-## endPointsJs
-
-Checks and processes `end-points.js`.
-
-### Usage
-
-```bash
-npx kschema-api-check endPointsJs
-```
-
----
-
-# Actions
-
-## ShowAll
-
-Displays all detected endpoints.
-
-### Usage
-
-```bash
-npx kschema-api-check endPointsJs ShowAll
-```
-
----
-
-# Example
-
-Suppose your project contains:
-
-```txt
-/end-points.js
-```
-
-Running:
-
-```bash
-npx kschema-api-check endPointsJs ShowAll
-```
-
-will analyze the file and display endpoint information.
-
----
-
-# Project Structure
-
-```txt
-bin/
- └── v10/
-      ├── commands/
-      ├── core/
-      ├── tasks/
-      │    ├── actions/
-      │    ├── common/
-      │    └── tables/
-      └── start.js
-```
-
----
-
-# Architecture
-
-The CLI follows a layered architecture:
-
-## Core
-
-Responsible for:
-
-* parsing input
-* resolving commands
-* showing usage
-* bootstrapping execution
 
 ## Commands
 
-Responsible for:
-
-* command routing
-* command validation
-
-## Actions
-
-Responsible for:
-
-* feature execution
-* business logic
-
-This separation keeps the codebase maintainable and scalable.
+* **`init`**: Initialize local static UI boilerplate.
+* **`initFromCdn`**: Scaffold UI boilerplate referencing dependencies from a CDN.
+* **`initHeaderFromCdn`**: Scaffold CDN-based Header boilerplate.
+* **`initTableFromCdn`**: Scaffold CDN-based Table boilerplate.
 
 ---
 
-# Why This Project Exists
+## Programmatic API
 
-Most projects repeatedly write the same API inspection logic.
+You can also import and load commands programmatically:
 
-This tool centralizes:
+```javascript
+import { fromScriptJs, initHeaderFromCdn } from "json-crud-ui-init";
 
-* validation
-* inspection
-* command execution
-* reusable CLI workflows
-
-into one clean developer utility.
-
----
-
-# Development
-
-Clone repository:
-
-```bash
-git clone https://github.com/keshavsoft/kschema-api-check.git
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Run locally:
-
-```bash
-node test/insert.js
+// Generate CRUD or simple script boilerplate
+fromScriptJs.crud({ folderName: "my-crud-app" });
+fromScriptJs.simple({ folderName: "my-simple-app" });
 ```
 
 ---
 
-# Future Plans
+## Downstream Integrations
 
-* Insert endpoint templates
-* Auto route generation
-* Schema validation
-* API documentation generation
-* Interactive CLI prompts
-* Multi-project scanning
+On publication, this package triggers automatic updates in the following dependent repositories:
 
----
-
-# Tech Stack
-
-* Node.js
-* ES Modules
-* JavaScript
+### [vs-code-ext-from-any-js](https://github.com/keshavsoft/vs-code-ext-from-any-js)
+* **Description**: A VS Code extension to start from any JS and hook folders.
+* **GitHub Repository**: [keshavsoft/vs-code-ext-from-any-js](https://github.com/keshavsoft/vs-code-ext-from-any-js)
+* **VS Code Marketplace**: [any js start hooking](https://marketplace.visualstudio.com/items?itemName=KeshavSoft.vs-code-ext-from-any-js)
 
 ---
 
-# Philosophy
-
-> Simple tools. Clean architecture. Fast development.
-
----
-
-# Author
-
-KeshavSoft
-
-GitHub:
-https://github.com/keshavsoft
-
----
-
-# Repository
-
-https://github.com/keshavsoft/kschema-api-check
-
----
-
-# License
+## License
 
 MIT
-
-```
-```
