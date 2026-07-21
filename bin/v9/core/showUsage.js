@@ -19,15 +19,15 @@ export default function showUsage(version) {
 
     const exampleLines = Object.entries(allVersions)
         .map(([name]) =>
-            `  ${gray}npx @keshavsoft/express-todo ${name}${r}`
+            `  ${gray}npx json-crud-ui-init ${name}${r}`
         )
         .join("\n");
 
     console.log(`
-${c}🚀 express-todo v${version}${r}
+${c}🚀 json-crud-ui-init v${version}${r}
 
 ${y}Usage:${r}
-  ${g}npx @keshavsoft/express-todo${r} <command> [options]
+  ${g}npx json-crud-ui-init${r} <command> [options]
 
 ${y}Commands:${r}
 ${commandLines}
@@ -36,6 +36,6 @@ ${y}Examples:${r}
 ${exampleLines}
 
 ${y}Tip:${r}
-  ${gray}npm i -g @keshavsoft/express-todo${r}
+  ${gray}npm i -g json-crud-ui-init${r}
 `);
 }
