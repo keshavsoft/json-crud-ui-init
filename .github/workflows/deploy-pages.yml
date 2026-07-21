@@ -30,3 +30,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Update Page Deployment Summary
+        run: |
+          echo "### 📄 GitHub Pages Deployment Status" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Documentation successfully built and deployed!" >> $GITHUB_STEP_SUMMARY
+          echo "Live documentation website: [json-crud-ui-init](${{ steps.deployment.outputs.page_url }})" >> $GITHUB_STEP_SUMMARY
