@@ -7,6 +7,12 @@ A lightweight CLI and library to scaffold static UI boilerplate code (HTML, JS, 
 
 ---
 
+## Links
+
+* **NPM Registry Link**: [https://www.npmjs.com/package/json-crud-ui-init](https://www.npmjs.com/package/json-crud-ui-init)
+
+---
+
 ## Installation
 
 Run directly using `npx`:
@@ -48,10 +54,9 @@ fromScriptJs.simple({ folderName: "my-simple-app" });
 
 On publication, this package triggers automatic updates in the following dependent repositories:
 
-### [vs-code-ext-from-any-js](https://github.com/keshavsoft/vs-code-ext-from-any-js)
-* **Description**: A VS Code extension to start from any JS and hook folders.
-* **GitHub Repository**: [keshavsoft/vs-code-ext-from-any-js](https://github.com/keshavsoft/vs-code-ext-from-any-js)
-* **VS Code Marketplace**: [any js start hooking](https://marketplace.visualstudio.com/items?itemName=KeshavSoft.vs-code-ext-from-any-js)
+### vs-code-ext-from-any-js
+* **GitHub Repository Link**: [https://github.com/keshavsoft/vs-code-ext-from-any-js](https://github.com/keshavsoft/vs-code-ext-from-any-js)
+* **VS Code Marketplace Link**: [https://marketplace.visualstudio.com/items?itemName=KeshavSoft.vs-code-ext-from-any-js](https://marketplace.visualstudio.com/items?itemName=KeshavSoft.vs-code-ext-from-any-js)
 
 ---
 
