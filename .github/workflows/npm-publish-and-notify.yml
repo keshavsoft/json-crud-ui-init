@@ -62,7 +62,7 @@ jobs:
       - name: Update Notification Summary
         run: |
           echo "### Notification Status" >> $GITHUB_STEP_SUMMARY
-          echo "Notified repository: **keshavsoft/vs-code-ext-from-any-js**" >> $GITHUB_STEP_SUMMARY
+          echo "Notified repository: [keshavsoft/vs-code-ext-from-any-js](https://github.com/keshavsoft/vs-code-ext-from-any-js)" >> $GITHUB_STEP_SUMMARY
 
       - name: Wait for Dependency Update
         env:
@@ -85,7 +85,7 @@ jobs:
           if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
             echo "Could not find the triggered workflow run in $repo."
             echo "### VS Code Extension Update Status" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ Triggered workflow run not found in **$repo**." >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Triggered workflow run not found in [$repo](https://github.com/$repo)." >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
           
@@ -114,12 +114,12 @@ jobs:
           
           echo "### VS Code Extension Update Status" >> $GITHUB_STEP_SUMMARY
           if [ "$conclusion" = "success" ]; then
-            echo "✅ Dependency update was **successful** in **$repo**!" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Dependency update was **successful** in [$repo](https://github.com/$repo)!" >> $GITHUB_STEP_SUMMARY
             echo "View run: [Workflow Run Details]($run_url)" >> $GITHUB_STEP_SUMMARY
           elif [ "$status" != "completed" ]; then
-            echo "⏳ Dependency update is still in progress (timed out waiting)." >> $GITHUB_STEP_SUMMARY
+            echo "⏳ Dependency update is still in progress (timed out waiting) in [$repo](https://github.com/$repo)." >> $GITHUB_STEP_SUMMARY
             echo "View run: [Workflow Run Details]($run_url)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ Dependency update **failed** or was cancelled in **$repo** (conclusion: $conclusion)." >> $GITHUB_STEP_SUMMARY
+            echo "❌ Dependency update **failed** or was cancelled in [$repo](https://github.com/$repo) (conclusion: $conclusion)." >> $GITHUB_STEP_SUMMARY
             echo "View run: [Workflow Run Details]($run_url)" >> $GITHUB_STEP_SUMMARY
           fi
