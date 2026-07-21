@@ -22,15 +22,18 @@ jobs:
       - name: Publish to npm
         id: publish_step
         run: |
+          BEFORE_VERSION=$(npm view json-crud-ui-init version 2>/dev/null || echo "None")
           CURRENT_VERSION=$(jq -r .version package.json)
           if npm view json-crud-ui-init@$CURRENT_VERSION version >/dev/null 2>&1; then
             echo "Version $CURRENT_VERSION is already published on npm. Skipping publication."
             echo "status=skipped" >> $GITHUB_OUTPUT
-            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+            echo "before=$BEFORE_VERSION" >> $GITHUB_OUTPUT
+            echo "after=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           else
             npm publish
             echo "status=published" >> $GITHUB_OUTPUT
-            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+            echo "before=$BEFORE_VERSION" >> $GITHUB_OUTPUT
+            echo "after=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -39,7 +42,12 @@ jobs:
         run: |
           echo "### Publication Status" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.publish_step.outputs.status }}" = "published" ]; then
-            echo "Successfully published version: **${{ steps.publish_step.outputs.version }}**" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **Successfully published** to npm!" >> $GITHUB_STEP_SUMMARY
           else
-            echo "Version **${{ steps.publish_step.outputs.version }}** is already published on npm. Skipping publication." >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Skipped publication** (version already exists on npm)." >> $GITHUB_STEP_SUMMARY
           fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Version |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Before** | \`${{ steps.publish_step.outputs.before }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **After** | \`${{ steps.publish_step.outputs.after }}\` |" >> $GITHUB_STEP_SUMMARY
