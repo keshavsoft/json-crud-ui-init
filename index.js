@@ -6,9 +6,15 @@ const require = createRequire(import.meta.url);
 const load = async (cmd) => {
     const v = getLatestVersion();
 
-    return (await import(
-        `./bin/${v}/commands/${cmd}.js`
-    )).default;
+    try {
+        return (await import(
+            `./bin/${v}/commands/${cmd}.js`
+        )).default;
+    } catch {
+        return (await import(
+            `./bin/${v}/${cmd}.js`
+        )).default;
+    }
 };
 
 const initHeaderFromCdn = async (...a) =>
@@ -19,7 +25,12 @@ let fromScriptJs = {};
 fromScriptJs.simple = (options) => {
     const v = getLatestVersion();
 
-    const mod = require(`./bin/${v}/fromScriptJs/simple.js`);
+    let mod;
+    try {
+        mod = require(`./bin/${v}/simple.js`);
+    } catch {
+        mod = require(`./bin/${v}/fromScriptJs/simple.js`);
+    }
 
     return mod.default(options);
 };
@@ -27,7 +38,12 @@ fromScriptJs.simple = (options) => {
 fromScriptJs.crud = (options) => {
     const v = getLatestVersion();
 
-    const mod = require(`./bin/${v}/fromScriptJs/crud.js`);
+    let mod;
+    try {
+        mod = require(`./bin/${v}/crud.js`);
+    } catch {
+        mod = require(`./bin/${v}/fromScriptJs/crud.js`);
+    }
 
     return mod.default(options);
 };
