@@ -1,0 +1,156 @@
+{
+    "containerId": "kSHeadContainer",
+    "tableName": "crud",
+    "mode": "create",
+    "layout": {
+        "verticalPosition": "top",
+        "type": "table"
+    },
+    "options": {
+        "firstRow": {
+            "showSearch": false
+        },
+        "enabledSections": [
+            "vertical",
+            "table",
+            "footer"
+        ],
+        "table": {
+            "showFooterRows": true,
+            "showDataList": true,
+            "showSave": true,
+            "showActions": true,
+            "showSerial": true,
+            "showFooter": true,
+            "footer": {
+                "showAggregateRows": false,
+                "showTotals": false,
+                "createNewRow": true
+            },
+            "body": {
+                "showEdit": true,
+                "showDelete": true,
+                "showShow": false,
+                "deleteType": "icon",
+                "deleteIconSize": "xl"
+            }
+        }
+    },
+    "callbacks": {
+        "table": {
+            "onDelete1": "function",
+            "onReadFail": "function",
+            "body": {
+                "update": "function",
+                "show": "function",
+                "edit": "function"
+            },
+            "footer": {
+                "onSave": "function"
+            }
+        }
+    },
+    "endPoints": {
+        "create": "/api/v1/ItemsTable/showAll",
+        "update": "/api/v1/ItemsTable/showAll",
+        "delete": "/api/v1/ItemsTable/showAll",
+        "read": "/api/v8/StockItems/showAll",
+        "find": "",
+        "filter": "",
+        "dataLists": {},
+        "dataListEndpoints": {}
+    },
+    "columnsConfig": [
+        {
+            "columnName": "StockItemName",
+            "title": "StockItemName",
+            "field": "StockItemName",
+            "cellConfig": {
+                "width": "150px"
+            },
+            "isConsider": true
+        },
+        {
+            "columnName": "StockGstApplicable",
+            "title": "StockGstApplicable",
+            "field": "StockGstApplicable",
+            "cellConfig": {
+                "width": "150px"
+            },
+            "isConsider": true
+        },
+        {
+            "columnName": "StockBaseUnits",
+            "title": "StockBaseUnits",
+            "field": "StockBaseUnits",
+            "cellConfig": {
+                "width": "150px"
+            },
+            "isConsider": true
+        },
+        {
+            "columnName": "sgstRate",
+            "title": "sgstRate",
+            "cellConfig": {
+                "width": "150px"
+            }
+        },
+        {
+            "columnName": "cgstRate",
+            "title": "cgstRate",
+            "cellConfig": {
+                "width": "150px"
+            }
+        },
+        {
+            "columnName": "TaxPer",
+            "title": "TaxPer",
+            "cellConfig": {
+                "width": "150px"
+            }
+        },
+        {
+            "columnName": "Uom",
+            "title": "Uom",
+            "cellConfig": {
+                "width": "150px"
+            }
+        },
+        {
+            "columnName": "StockItemReservedName",
+            "title": "StockItemReservedName",
+            "cellConfig": {
+                "width": "150px"
+            }
+        },
+        {
+            "columnName": "StockItemType",
+            "title": "StockItemType",
+            "cellConfig": {
+                "width": "150px"
+            }
+        },
+        {
+            "columnName": "StockParentName",
+            "title": "StockParentName",
+            "cellConfig": {
+                "width": "150px"
+            }
+        },
+        {
+            "columnName": "StockCategory",
+            "title": "StockCategory",
+            "cellConfig": {
+                "width": "150px"
+            }
+        },
+        {
+            "field": "pk",
+            "title": "pk",
+            "primary": true
+        }
+    ],
+    "defaults": {
+        "data": []
+    }
+}
