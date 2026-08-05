@@ -2,124 +2,56 @@ name: step 1 and notify to above
 
 on:
   workflow_dispatch:
+    inputs:
+      downstream-repository:
+        description: "Target repository owner/name to notify"
+        type: string
+        default: "keshavsoft/vs-code-ext-from-any-js"
+        required: true
+      event-type:
+        description: "Repository dispatch event type to send"
+        type: string
+        default: "dependency-updated"
+        required: true
+      workflow-name:
+        description: "Filename of the workflow in the target repository to monitor"
+        type: string
+        default: "update-dependency.yml"
+        required: true
+      node-version:
+        description: "Node.js version to use"
+        type: string
+        default: "20"
+        required: false
 
 jobs:
-  publish-and-notify:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  publish:
+    name: NPM Publish Task
+    uses: ./.github/workflows/npm-publish.yml
+    with:
+      node-version: ${{ inputs.node-version }}
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
+  notify:
+    name: Dispatch Notification Task
+    needs: publish
+    if: needs.publish.outputs.status == 'published'
+    uses: ./.github/workflows/notify-repo.yml
+    with:
+      repository: ${{ inputs.downstream-repository }}
+      event-type: ${{ inputs.event-type }}
+      client-payload: '{"package": "${{ needs.publish.outputs.package_name }}"}'
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Publish to npm
-        id: publish_step
-        run: |
-          BEFORE_VERSION=$(npm view json-crud-ui-init version 2>/dev/null || echo "None")
-          CURRENT_VERSION=$(jq -r .version package.json)
-          if npm view json-crud-ui-init@$CURRENT_VERSION version >/dev/null 2>&1; then
-            echo "Version $CURRENT_VERSION is already published on npm. Skipping publication."
-            echo "status=skipped" >> $GITHUB_OUTPUT
-            echo "before=$BEFORE_VERSION" >> $GITHUB_OUTPUT
-            echo "after=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          else
-            npm publish
-            echo "status=published" >> $GITHUB_OUTPUT
-            echo "before=$BEFORE_VERSION" >> $GITHUB_OUTPUT
-            echo "after=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Update Action Summary
-        run: |
-          echo "### Publication Status" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.publish_step.outputs.status }}" = "published" ]; then
-            echo "✅ **Successfully published** to npm!" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ **Skipped publication** (version already exists on npm)." >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Version |" >> $GITHUB_STEP_SUMMARY
-          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Before** | \`${{ steps.publish_step.outputs.before }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **After** | \`${{ steps.publish_step.outputs.after }}\` |" >> $GITHUB_STEP_SUMMARY
-
-      - name: Send Repository Dispatch
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GH_PAT }}
-          repository: keshavsoft/vs-code-ext-from-any-js
-          event-type: kschema_published
-
-      - name: Update Notification Summary
-        run: |
-          echo "### Notification Status" >> $GITHUB_STEP_SUMMARY
-          echo "Notified repository: [keshavsoft/vs-code-ext-from-any-js](https://github.com/keshavsoft/vs-code-ext-from-any-js)" >> $GITHUB_STEP_SUMMARY
-
-      - name: Wait for Dependency Update
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          token="${GH_TOKEN}"
-          repo="keshavsoft/vs-code-ext-from-any-js"
-          workflow="update-dependency.yml"
-          
-          echo "Waiting for workflow to trigger in $repo..."
-          sleep 10
-          
-          run_json=$(curl -s -H "Authorization: token $token" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/$repo/actions/workflows/$workflow/runs?event=repository_dispatch&per_page=1")
-          
-          run_id=$(echo "$run_json" | jq -r '.workflow_runs[0].id')
-          run_url=$(echo "$run_json" | jq -r '.workflow_runs[0].html_url')
-          
-          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
-            echo "Could not find the triggered workflow run in $repo."
-            echo "### VS Code Extension Update Status" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ Triggered workflow run not found in [$repo](https://github.com/$repo)." >> $GITHUB_STEP_SUMMARY
-            exit 0
-          fi
-          
-          echo "Found run ID: $run_id"
-          echo "URL: $run_url"
-          
-          status="queued"
-          conclusion=""
-          max_attempts=30
-          attempt=0
-          
-          while [ "$status" != "completed" ] && [ $attempt -lt $max_attempts ]; do
-            attempt=$((attempt+1))
-            echo "Polling attempt $attempt/$max_attempts... status: $status"
-            sleep 10
-            
-            run_info=$(curl -s -H "Authorization: token $token" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/$repo/actions/runs/$run_id")
-              
-            status=$(echo "$run_info" | jq -r '.status')
-            conclusion=$(echo "$run_info" | jq -r '.conclusion')
-          done
-          
-          echo "Workflow run finished with status: $status, conclusion: $conclusion"
-          
-          echo "### VS Code Extension Update Status" >> $GITHUB_STEP_SUMMARY
-          if [ "$conclusion" = "success" ]; then
-            echo "✅ Dependency update was **successful** in [$repo](https://github.com/$repo)!" >> $GITHUB_STEP_SUMMARY
-            echo "View run: [Workflow Run Details]($run_url)" >> $GITHUB_STEP_SUMMARY
-          elif [ "$status" != "completed" ]; then
-            echo "⏳ Dependency update is still in progress (timed out waiting) in [$repo](https://github.com/$repo)." >> $GITHUB_STEP_SUMMARY
-            echo "View run: [Workflow Run Details]($run_url)" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ Dependency update **failed** or was cancelled in [$repo](https://github.com/$repo) (conclusion: $conclusion)." >> $GITHUB_STEP_SUMMARY
-            echo "View run: [Workflow Run Details]($run_url)" >> $GITHUB_STEP_SUMMARY
-          fi
+  wait:
+    name: Wait for Build Task
+    needs: [publish, notify]
+    if: needs.publish.outputs.status == 'published'
+    uses: ./.github/workflows/wait-for-workflow.yml
+    with:
+      repository: ${{ inputs.downstream-repository }}
+      workflow-name: ${{ inputs.workflow-name }}
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}

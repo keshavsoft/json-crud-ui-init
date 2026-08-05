@@ -1,0 +1,114 @@
+name: Reusable Wait for Dependency Update
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        description: "Target repository owner/name"
+        type: string
+        required: true
+      workflow-name:
+        description: "Filename of the workflow to monitor (e.g., update-dependency.yml)"
+        type: string
+        required: true
+      max-attempts:
+        description: "Max polling attempts"
+        type: number
+        default: 30
+        required: false
+      poll-interval:
+        description: "Seconds to wait between polls"
+        type: number
+        default: 10
+        required: false
+    secrets:
+      GH_PAT:
+        description: "GitHub Personal Access Token with repo access"
+        required: true
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: "Target repository owner/name"
+        type: string
+        default: "keshavsoft/vs-code-ext-from-any-js"
+        required: true
+      workflow-name:
+        description: "Filename of the workflow to monitor"
+        type: string
+        default: "update-dependency.yml"
+        required: true
+      max-attempts:
+        description: "Max polling attempts"
+        type: number
+        default: 30
+        required: false
+      poll-interval:
+        description: "Seconds to wait between polls"
+        type: number
+        default: 10
+        required: false
+
+jobs:
+  wait:
+    name: Wait for Workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Poll Workflow Status
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          token="${GH_TOKEN}"
+          repo="${{ inputs.repository }}"
+          workflow="${{ inputs.workflow-name }}"
+          
+          echo "Waiting for workflow to trigger in $repo..."
+          sleep 10
+          
+          run_json=$(curl -s -H "Authorization: token $token" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/$repo/actions/workflows/$workflow/runs?event=repository_dispatch&per_page=1")
+          
+          run_id=$(echo "$run_json" | jq -r '.workflow_runs[0].id')
+          run_url=$(echo "$run_json" | jq -r '.workflow_runs[0].html_url')
+          
+          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
+            echo "Could not find the triggered workflow run in $repo."
+            echo "### ⚠️ Dependency Update Status" >> $GITHUB_STEP_SUMMARY
+            echo "Triggered workflow run not found in [$repo](https://github.com/$repo)." >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          echo "Found run ID: $run_id"
+          echo "URL: $run_url"
+          
+          status="queued"
+          conclusion=""
+          max_attempts=${{ inputs.max-attempts || 30 }}
+          attempt=0
+          
+          while [ "$status" != "completed" ] && [ $attempt -lt $max_attempts ]; do
+            attempt=$((attempt+1))
+            echo "Polling attempt $attempt/$max_attempts... status: $status"
+            sleep ${{ inputs.poll-interval || 10 }}
+            
+            run_info=$(curl -s -H "Authorization: token $token" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/$repo/actions/runs/$run_id")
+              
+            status=$(echo "$run_info" | jq -r '.status')
+            conclusion=$(echo "$run_info" | jq -r '.conclusion')
+          done
+          
+          echo "Workflow run finished with status: $status, conclusion: $conclusion"
+          
+          echo "### 🚀 Downstream Update Status" >> $GITHUB_STEP_SUMMARY
+          if [ "$conclusion" = "success" ]; then
+            echo "✅ Dependency update was **successful** in [$repo](https://github.com/$repo)!" >> $GITHUB_STEP_SUMMARY
+            echo "View run: [Workflow Run Details]($run_url)" >> $GITHUB_STEP_SUMMARY
+          elif [ "$status" != "completed" ]; then
+            echo "⏳ Dependency update is still in progress (timed out waiting) in [$repo](https://github.com/$repo)." >> $GITHUB_STEP_SUMMARY
+            echo "View run: [Workflow Run Details]($run_url)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Dependency update **failed** or was cancelled in [$repo](https://github.com/$repo) (conclusion: $conclusion)." >> $GITHUB_STEP_SUMMARY
+            echo "View run: [Workflow Run Details]($run_url)" >> $GITHUB_STEP_SUMMARY
+          fi

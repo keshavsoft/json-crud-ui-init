@@ -1,0 +1,58 @@
+name: Reusable Send Notification Dispatch
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        description: "Target repository to notify (owner/repo)"
+        type: string
+        required: true
+      event-type:
+        description: "Repository dispatch event type"
+        type: string
+        required: true
+      client-payload:
+        description: "JSON string of client payload to send"
+        type: string
+        default: '{}'
+        required: false
+    secrets:
+      GH_PAT:
+        description: "GitHub Personal Access Token with repo write permissions"
+        required: true
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: "Target repository to notify"
+        type: string
+        default: "keshavsoft/vs-code-ext-from-any-js"
+        required: true
+      event-type:
+        description: "Repository dispatch event type"
+        type: string
+        default: "dependency-updated"
+        required: true
+      client-payload:
+        description: "JSON string of client payload to send"
+        type: string
+        default: '{"package": "json-crud-ui-init"}'
+        required: false
+
+jobs:
+  notify:
+    name: Notify Repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
+          repository: ${{ inputs.repository }}
+          event-type: ${{ inputs.event-type }}
+          client-payload: ${{ inputs.client-payload }}
+
+      - name: Update Notification Summary
+        run: |
+          echo "### 🔔 Notification Status" >> $GITHUB_STEP_SUMMARY
+          echo "Successfully sent repository dispatch event \`${{ inputs.event-type }}\` to [${{ inputs.repository }}](https://github.com/${{ inputs.repository }})." >> $GITHUB_STEP_SUMMARY
+          echo "Payload: \`${{ inputs.client-payload }}\`" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,100 @@
+name: Reusable NPM Publish
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node.js version to use"
+        type: string
+        default: "20"
+        required: false
+    secrets:
+      NPM_TOKEN:
+        description: "Token to publish to npm"
+        required: true
+    outputs:
+      status:
+        description: "Whether the package was published or skipped"
+        value: ${{ jobs.publish.outputs.status }}
+      before:
+        description: "The package version before running the workflow"
+        value: ${{ jobs.publish.outputs.before }}
+      after:
+        description: "The package version after running the workflow"
+        value: ${{ jobs.publish.outputs.after }}
+      package_name:
+        description: "Name of the NPM package"
+        value: ${{ jobs.publish.outputs.package_name }}
+  workflow_dispatch:
+    inputs:
+      node-version:
+        description: "Node.js version to use"
+        type: string
+        default: "20"
+        required: false
+
+jobs:
+  publish:
+    name: Publish Package
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.publish_step.outputs.status }}
+      before: ${{ steps.publish_step.outputs.before }}
+      after: ${{ steps.publish_step.outputs.after }}
+      package_name: ${{ steps.publish_step.outputs.package_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Publish to npm
+        id: publish_step
+        run: |
+          PACKAGE_NAME=$(jq -r .name package.json)
+          BEFORE_VERSION=$(npm view $PACKAGE_NAME version 2>/dev/null || echo "None")
+          CURRENT_VERSION=$(jq -r .version package.json)
+          
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          
+          if npm view $PACKAGE_NAME@$CURRENT_VERSION version >/dev/null 2>&1; then
+            echo "Version $CURRENT_VERSION of $PACKAGE_NAME is already published. Skipping."
+            echo "status=skipped" >> $GITHUB_OUTPUT
+            echo "before=$BEFORE_VERSION" >> $GITHUB_OUTPUT
+            echo "after=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          else
+            npm publish
+            echo "status=published" >> $GITHUB_OUTPUT
+            echo "before=$BEFORE_VERSION" >> $GITHUB_OUTPUT
+            echo "after=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Update Action Summary
+        if: always()
+        run: |
+          echo "### 📦 NPM Publication Status" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.publish_step.outputs.status }}" = "published" ]; then
+            echo "✅ **Successfully published** to npm!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Skipped publication** (version already exists on npm)." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Package** | \`${{ steps.publish_step.outputs.package_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Before** | \`${{ steps.publish_step.outputs.before }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **After** | \`${{ steps.publish_step.outputs.after }}\` |" >> $GITHUB_STEP_SUMMARY
