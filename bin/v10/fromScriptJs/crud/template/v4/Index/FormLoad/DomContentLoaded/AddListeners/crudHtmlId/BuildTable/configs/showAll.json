@@ -1,0 +1,67 @@
+{
+    "containerId": "kSHeadContainer",
+    "tableName": "crud",
+    "mode": "create",
+    "layout": {
+        "verticalPosition": "top",
+        "type": "table"
+    },
+    "options": {
+        "firstRow": {
+            "showSearch": false
+        },
+        "enabledSections": [
+            "vertical",
+            "table",
+            "footer"
+        ],
+        "table": {
+            "showFooterRows": true,
+            "showDataList": true,
+            "showSave": true,
+            "showActions": true,
+            "showSerial": true,
+            "showFooter": true,
+            "footer": {
+                "showAggregateRows": false,
+                "showTotals": false,
+                "createNewRow": true
+            },
+            "body": {
+                "showEdit": true,
+                "showDelete": true,
+                "showShow": false,
+                "deleteType": "icon",
+                "deleteIconSize": "xl"
+            }
+        }
+    },
+    "callbacks": {
+        "table": {
+            "onDelete1": "function",
+            "onReadFail": "function",
+            "body": {
+                "update": "function",
+                "show": "function",
+                "edit": "function"
+            },
+            "footer": {
+                "onSave": "function"
+            }
+        }
+    },
+    "endPoints": {
+        "create": "/api/doctors/insertWithMeta",
+        "update": "/api/v1/doctors/modify",
+        "delete": "/api/v1/doctors/del",
+        "read": "/api/doctors/showAll",
+        "find": "",
+        "filter": "",
+        "dataLists": {},
+        "dataListEndpoints": {}
+    },
+    "columnsConfig": [],
+    "defaults": {
+        "data": []
+    }
+}
